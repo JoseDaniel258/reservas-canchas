@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-const sequelize = require('./database');
+const { sequelize } = require('./models');
 
 let ejs = require('ejs');
 app.set('view engine', 'ejs');
@@ -14,7 +14,6 @@ app.get('/about', (req, res) => {
   res.sendFile(  __dirname + '/app.html');
 });
 
-
 sequelize.sync().then(() => {
   console.log('Connection has been established successfully.');
   app.listen(port, () => {
@@ -23,4 +22,3 @@ sequelize.sync().then(() => {
 }).catch((error) => {
   console.error('Unable to connect to the database:', error);
 });
-
