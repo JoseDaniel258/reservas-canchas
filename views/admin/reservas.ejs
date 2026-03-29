@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="d-flex">
+    <%- include('./partials/sidebar') %>
+
+    <div class="flex-grow-1 p-4 w-100">
+        <h2 class="mb-4">Historial de Reservas</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold">Todas las reservas</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Cancha</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% reservas.forEach(reserva => { %>
+                            <tr>
+                                <td><%= reserva.id %></td>
+                                <td class="fw-bold"><%= reserva.Usuario ? reserva.Usuario.nombre : 'Usuario Borrado' %></td>
+                                
+                                <% if (reserva.Horario && reserva.Horario.Cancha) { %>
+                                    <td><%= reserva.Horario.Cancha.nombre %></td>
+                                    <td><%= reserva.Horario.fecha %></td>
+                                    <td><%= reserva.Horario.hora_inicio %> - <%= reserva.Horario.hora_fin %></td>
+                                <% } else { %>
+                                    <td colspan="3" class="text-muted">Horario o Cancha no disponibles</td>
+                                <% } %>
+
+                                <td>
+                                    <span class="badge <%= reserva.estado === 'confirmada' ? 'bg-success' : 'bg-danger' %>">
+                                        <%= reserva.estado.toUpperCase() %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <% if(reserva.estado === 'confirmada') { %>
+                                        <form action="/admin/reservas/estado/<%= reserva.id %>" method="POST" class="d-inline">
+                                            <input type="hidden" name="estado" value="cancelada">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Cancelar esta reserva? El horario volverá a estar disponible.')">Cancelar</button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/admin/reservas/estado/<%= reserva.id %>" method="POST" class="d-inline">
+                                            <input type="hidden" name="estado" value="confirmada">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Confirmar</button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        
+                        <% if(reservas.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    Aún no hay reservas registradas en el sistema.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reseñas - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="d-flex">
+    <%- include('./partials/sidebar') %>
+
+    <div class="flex-grow-1 p-4 w-100">
+        <h2 class="mb-4">Comentarios y Reseñas</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold">Feedback de los clientes</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Cancha</th>
+                            <th>Calificación</th>
+                            <th>Comentario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% resenas.forEach(resena => { %>
+                            <tr>
+                                <td><%= resena.id %></td>
+                                <td class="fw-bold"><%= resena.Usuario ? resena.Usuario.nombre : 'Usuario Borrado' %></td>
+                                <td><%= resena.Cancha ? resena.Cancha.nombre : 'Cancha Borrada' %></td>
+                                <td>
+                                    <span class="text-warning">
+                                        <%= '★'.repeat(resena.calificacion) %><%= '☆'.repeat(5 - resena.calificacion) %>
+                                    </span>
+                                </td>
+                                <td><i>"<%= resena.comentario %>"</i></td>
+                                <td>
+                                    <form action="/admin/resenas/eliminar/<%= resena.id %>" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Borrar esta reseña?')">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        
+                        <% if(resenas.length === 0) { %>
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No hay reseñas todavía.</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

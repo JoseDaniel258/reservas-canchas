@@ -22,3 +22,196 @@ exports.dashboard = async (req, res) => {
         res.send('Hubo un error al cargar el panel de control.');
     }
 };
+
+// --- CRUD: TIPOS DE CANCHA ---
+
+// Mostrar la vista con la tabla y el formulario
+exports.listarTipos = async (req, res) => {
+    try {
+        const tipos = await TipoCancha.findAll();
+        res.render('admin/tipos', { 
+            tipos: tipos, 
+            nombreAdmin: req.session.nombre 
+        });
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cargar la página de tipos de cancha.');
+    }
+};
+
+// Recibir los datos del formulario y guardar en SQLite
+exports.crearTipo = async (req, res) => {
+    try {
+        const { nombre } = req.body;
+        await TipoCancha.create({ nombre: nombre });
+        
+        // Si todo sale bien, recargamos la página para ver el nuevo registro en la tabla
+        res.redirect('/admin/tipos');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al crear el tipo de cancha.');
+    }
+};
+
+// ELIMINAR TIPO DE CANCHA
+exports.eliminarTipo = async (req, res) => {
+    try {
+        await TipoCancha.destroy({ where: { id: req.params.id } });
+        res.redirect('/admin/tipos');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al eliminar. Asegúrate de que no haya canchas usando este tipo primero.');
+    }
+};
+
+// --- CRUD: CANCHAS ---
+exports.listarCanchas = async (req, res) => {
+    try {
+        // Traemos las canchas con su tipo asociado
+        const canchas = await Cancha.findAll({ include: [{ model: TipoCancha }] });
+        // Traemos los tipos para llenar el <select> del formulario
+        const tipos = await TipoCancha.findAll(); 
+        res.render('admin/canchas', { canchas, tipos, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cargar la página de canchas.');
+    }
+};
+
+exports.crearCancha = async (req, res) => {
+    try {
+        const { nombre, tipo_id, precio_por_hora } = req.body;
+        await Cancha.create({ nombre, tipo_id, precio_por_hora });
+        res.redirect('/admin/canchas');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al crear la cancha.');
+    }
+};
+
+exports.eliminarCancha = async (req, res) => {
+    try {
+        await Cancha.destroy({ where: { id: req.params.id } });
+        res.redirect('/admin/canchas');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al eliminar la cancha.');
+    }
+};
+
+// --- GESTIÓN DE HORARIOS ---
+exports.listarHorarios = async (req, res) => {
+    try {
+        const { Horario } = require('../models');
+        // Traemos horarios e incluimos la Cancha a la que pertenecen
+        const horarios = await Horario.findAll({ include: [{ model: Cancha }] });
+        const canchas = await Cancha.findAll(); 
+        res.render('admin/horarios', { horarios, canchas, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cargar horarios.');
+    }
+};
+
+exports.crearHorario = async (req, res) => {
+    try {
+        const { Horario } = require('../models');
+        const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
+        await Horario.create({ cancha_id, fecha, hora_inicio, hora_fin });
+        res.redirect('/admin/horarios');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al crear el horario.');
+    }
+};
+
+exports.eliminarHorario = async (req, res) => {
+    try {
+        const { Horario } = require('../models');
+        await Horario.destroy({ where: { id: req.params.id } });
+        res.redirect('/admin/horarios');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al eliminar el horario.');
+    }
+};
+
+// --- GESTIÓN DE RESERVAS ---
+exports.listarReservas = async (req, res) => {
+    try {
+        const { Reserva, Usuario, Horario, Cancha } = require('../models');
+        
+        // Traemos todas las reservas con toda la información conectada
+        const reservas = await Reserva.findAll({
+            include: [
+                { model: Usuario },
+                { 
+                    model: Horario, 
+                    include: [{ model: Cancha }] 
+                }
+            ],
+            order: [['id', 'DESC']] // Las más nuevas arriba
+        });
+        
+        res.render('admin/reservas', { reservas, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cargar las reservas.');
+    }
+};
+
+exports.cambiarEstadoReserva = async (req, res) => {
+    try {
+        const { Reserva, Horario } = require('../models');
+        const { estado } = req.body;
+        
+        // 1. Buscamos la reserva que el admin quiere modificar
+        const reserva = await Reserva.findByPk(req.params.id);
+
+        if (reserva) {
+            reserva.estado = estado;
+            await reserva.save();
+
+            // 2. Lógica de negocio: Si se CANCELA, liberamos el horario para que otro lo compre
+            const horario = await Horario.findByPk(reserva.horario_id);
+            if (horario) {
+                if (estado === 'cancelada') {
+                    horario.disponible = true;
+                } else if (estado === 'confirmada') {
+                    horario.disponible = false;
+                }
+                await horario.save();
+            }
+        }
+        res.redirect('/admin/reservas');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cambiar el estado de la reserva.');
+    }
+};
+
+// --- GESTIÓN DE RESEÑAS ---
+exports.listarResenas = async (req, res) => {
+    try {
+        const { Resena, Usuario, Cancha } = require('../models');
+        const resenas = await Resena.findAll({
+            include: [{ model: Usuario }, { model: Cancha }],
+            order: [['id', 'DESC']]
+        });
+        res.render('admin/resenas', { resenas, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error);
+        res.send('Error al cargar las reseñas.');
+    }
+};
+
+exports.eliminarResena = async (req, res) => {
+    try {
+        const { Resena } = require('../models');
+        await Resena.destroy({ where: { id: req.params.id } });
+        res.redirect('/admin/resenas');
+    } catch (error) {
+        console.error(error);
+        res.send('Error al eliminar la reseña.');
+    }
+};
