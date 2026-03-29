@@ -44,4 +44,17 @@ router.post('/admin/reservas/estado/:id', esAdmin, adminController.cambiarEstado
 router.get('/admin/resenas', esAdmin, adminController.listarResenas);
 router.post('/admin/resenas/eliminar/:id', esAdmin, adminController.eliminarResena);
 
+
+// Rutas para EDITAR Tipos
+router.get('/admin/tipos/editar/:id', esAdmin, adminController.mostrarEditarTipo);
+router.post('/admin/tipos/editar/:id', esAdmin, adminController.actualizarTipo);
+
+// Rutas para EDITAR Canchas
+router.get('/admin/canchas/editar/:id', esAdmin, adminController.mostrarEditarCancha);
+router.post('/admin/canchas/editar/:id', esAdmin, adminController.actualizarCancha);
+
+// Rutas para EDITAR Horarios
+router.get('/admin/horarios/editar/:id', esAdmin, adminController.mostrarEditarHorario);
+router.post('/admin/horarios/editar/:id', esAdmin, adminController.actualizarHorario);
+
 module.exports = router;

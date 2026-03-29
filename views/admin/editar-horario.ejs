@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Horario - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="d-flex">
+    <%- include('./partials/sidebar') %>
+    <div class="flex-grow-1 p-4 w-100">
+        <h2 class="mb-4">Editar Horario</h2>
+        <div class="card shadow-sm" style="max-width: 500px;">
+            <div class="card-body">
+                <form action="/admin/horarios/editar/<%= horario.id %>" method="POST">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Cancha</label>
+                        <select name="cancha_id" class="form-select" required>
+                            <% canchas.forEach(cancha => { %>
+                                <option value="<%= cancha.id %>" <%= cancha.id === horario.cancha_id ? 'selected' : '' %>>
+                                    <%= cancha.nombre %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="<%= horario.fecha %>" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Hora Inicio</label>
+                            <input type="time" name="hora_inicio" class="form-control" value="<%= horario.hora_inicio %>" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Hora Fin</label>
+                            <input type="time" name="hora_fin" class="form-control" value="<%= horario.hora_fin %>" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">Actualizar Cambios</button>
+                    <a href="/admin/horarios" class="btn btn-secondary w-100 mt-2">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -48,8 +48,7 @@
                                         <td><%= tipo.id %></td>
                                         <td class="fw-bold"><%= tipo.nombre %></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-warning">Editar</button>
-                                         <form action="/admin/tipos/eliminar/<%= tipo.id %>" method="POST" class="d-inline">
+<a href="/admin/tipos/editar/<%= tipo.id %>" class="btn btn-sm btn-outline-warning">Editar</a>                                         <form action="/admin/tipos/eliminar/<%= tipo.id %>" method="POST" class="d-inline">
     <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar este tipo?')">Eliminar</button>
 </form>
                                         </td>

@@ -215,3 +215,81 @@ exports.eliminarResena = async (req, res) => {
         res.send('Error al eliminar la reseña.');
     }
 };
+
+// --- EDITAR TIPO DE CANCHA ---
+exports.mostrarEditarTipo = async (req, res) => {
+    try {
+        const { TipoCancha } = require('../models');
+        const tipo = await TipoCancha.findByPk(req.params.id);
+        res.render('admin/editar-tipo', { tipo, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error); res.send('Error al cargar pantalla de edición.');
+    }
+};
+
+exports.actualizarTipo = async (req, res) => {
+    try {
+        const { TipoCancha } = require('../models');
+        await TipoCancha.update({ nombre: req.body.nombre }, { where: { id: req.params.id } });
+        res.redirect('/admin/tipos');
+    } catch (error) {
+        console.error(error); res.send('Error al actualizar.');
+    }
+};
+
+// --- EDITAR CANCHA ---
+exports.mostrarEditarCancha = async (req, res) => {
+    try {
+        const { Cancha, TipoCancha } = require('../models');
+        const cancha = await Cancha.findByPk(req.params.id);
+        const tipos = await TipoCancha.findAll();
+        res.render('admin/editar-cancha', { cancha, tipos, nombreAdmin: req.session.nombre });
+    } catch (error) {
+        console.error(error); res.send('Error al cargar pantalla de edición.');
+    }
+};
+
+exports.actualizarCancha = async (req, res) => {
+    try {
+        const { Cancha } = require('../models');
+        const { nombre, tipo_id, precio_por_hora } = req.body;
+        await Cancha.update({ nombre, tipo_id, precio_por_hora }, { where: { id: req.params.id } });
+        res.redirect('/admin/canchas');
+    } catch (error) {
+        console.error(error); res.send('Error al actualizar.');
+    }
+};
+
+// --- EDITAR HORARIO ---
+exports.mostrarEditarHorario = async (req, res) => {
+    try {
+        const { Horario, Cancha } = require('../models');
+        const horario = await Horario.findByPk(req.params.id);
+        const canchas = await Cancha.findAll();
+        
+        res.render('admin/editar-horario', { 
+            horario, 
+            canchas, 
+            nombreAdmin: req.session.nombre 
+        });
+    } catch (error) {
+        console.error(error); 
+        res.send('Error al cargar la pantalla de edición de horario.');
+    }
+};
+
+exports.actualizarHorario = async (req, res) => {
+    try {
+        const { Horario } = require('../models');
+        const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
+        
+        await Horario.update(
+            { cancha_id, fecha, hora_inicio, hora_fin }, 
+            { where: { id: req.params.id } }
+        );
+        res.redirect('/admin/horarios');
+    } catch (error) {
+        console.error(error); 
+        res.send('Error al actualizar el horario.');
+    }
+};
