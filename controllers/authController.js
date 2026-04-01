@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
         if (usuario.rol === 'admin') {
             res.redirect('/admin/dashboard');
         } else {
-            res.redirect('/canchas');
+            res.redirect('/client/Home');
         }
 
     } catch (error) {

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitorial de reservas</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('partials/sidebar_client') %>
+        
+        <div class="container mt-4">
+            <h2>Historial de reservas</h2>
+            
+            <% if(reservas.length > 0) { %>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cancha</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <% reservas.forEach(reserva => { %>
+                            <% 
+                                const fechaReserva = reserva.Horario.fecha;
+                                const horaReserva = reserva.Horario.hora_inicio;
+                                const esPasada = (fechaReserva < hoy) || (fechaReserva === hoy && horaReserva < horaActual);
+                            %>
+                            <tr>
+                                <td><%= reserva.Horario.Cancha.nombre %></td>
+                                <td><%= reserva.Horario.fecha %></td>
+                                <td><%= reserva.Horario.hora_inicio %> - <%= reserva.Horario.hora_fin %></td>
+                                
+                                <td>
+                                    <% if (reserva.estado === 'confirmada' && esPasada) { %>
+                                        <span class="badge bg-info text-dark">Pasada</span>
+                                    <% } else if (reserva.estado === 'confirmada') { %>
+                                        <span class="badge bg-success">Confirmada</span>
+                                    <% } else { %>
+                                        <span class="badge bg-secondary">Cancelada</span>
+                                    <% } %>
+                                </td>
+
+                                <td>
+                                    <% if (reserva.estado === 'confirmada' && !esPasada) { %>
+                                        <form action="/client/cancelar/<%= reserva.id %>" method="POST" 
+                                            onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?')">
+                                            <button type="submit" class="btn btn-danger btn-sm">Cancelar</button>
+                                        </form>
+                                    <% } else if (reserva.estado === 'confirmada' && esPasada) { %>
+                                        <small class="text-muted">Finalizada</small>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="alert alert-info">No tienes reservas realizadas aun.</div>
+            <% } %>
+    </div>
+</body>
+</html>

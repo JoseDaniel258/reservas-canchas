@@ -2,16 +2,24 @@ const express = require('express');
 const router = express.Router();
 
 const { estaAutenticado, esAdmin } = require('../middlewares/authMiddleware');
-// Importamos el nuevo controlador del admin
+//   admin
 const adminController = require('../controllers/adminController');
+//client
+const clientController = require('../controllers/clientController');
 
 // ==========================================
 // ZONA DE CLIENTES (Requiere estar logueado)
 // ==========================================
-router.get('/canchas', estaAutenticado, (req, res) => {
-    res.send(`<h1>Bienvenido Cliente: ${req.session.nombre}</h1> <p>Aquí verás el listado de canchas.</p> <a href="/logout">Cerrar Sesión</a>`);
-});
+router.get('/client/Home', estaAutenticado, clientController.Home);
 
+router.get('/client/listado_canchas', estaAutenticado, clientController.listado_cancha);
+router.get('/client/cancha/:id/disponibilidad', estaAutenticado, clientController.verDisponibilidad);
+router.post('/client/reservar/:horarioId', estaAutenticado, clientController.reservarCancha);
+router.get('/client/historial_reservas', estaAutenticado, clientController.historialReservas);
+router.post('/client/cancelar/:reservaId', estaAutenticado, clientController.cancelarReserva);
+router.get('/client/resenas', estaAutenticado, clientController.reservasPasadas);
+router.get('/client/cancha/:id/resenas', estaAutenticado, clientController.verResenasCancha);
+router.post('/client/resena/crear', estaAutenticado, clientController.crearResena);
 // ==========================================
 // ZONA DE ADMIN (Requiere ser Administrador)
 // ==========================================

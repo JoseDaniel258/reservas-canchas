@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dejar Reseña</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('partials/sidebar_client') %>
+
+        <div class="container mt-4">
+            <h2>Historial para Reseñas</h2>
+            <p class="text-muted">Aquí aparecen las canchas que ya utilizaste. ¡Cuéntanos qué tal te pareció!</p>
+
+            <% if(reservas.length > 0) { %>
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Cancha</th>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% reservas.forEach(reserva => { %>
+                            <tr>
+                                <td><strong><%= reserva.Horario.Cancha.nombre %></strong></td>
+                                <td><%= reserva.Horario.fecha %></td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalResena<%= reserva.id %>">
+                                        Escribir Reseña
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <div class="modal fade" id="modalResena<%= reserva.id %>" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="/client/resena/crear" method="POST">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Calificar: <%= reserva.Horario.Cancha.nombre %></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                <input type="hidden" name="cancha_id" value="<%= reserva.Horario.Cancha.id %>">
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Puntuación</label>
+                                                    <select name="calificacion" class="form-select" required>
+                                                        <option value="5">🌟🌟🌟🌟🌟 (Excelente)</option>
+                                                        <option value="4">🌟🌟🌟🌟 (Muy buena)</option>
+                                                        <option value="3">🌟🌟🌟 (Regular)</option>
+                                                        <option value="2">🌟🌟 (Mala)</option>
+                                                        <option value="1">🌟 (Pésima)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Comentario</label>
+                                                    <textarea name="comentario" class="form-control" rows="3" placeholder="¿Cómo estuvo el partido?" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                <button type="submit" class="btn btn-success">Publicar Reseña</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="alert alert-warning">No tienes reservas pasadas disponibles para calificar.</div>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

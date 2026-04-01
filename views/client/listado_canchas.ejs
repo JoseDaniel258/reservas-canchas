@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado Canchas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
+        <%- include('partials/sidebar_client') %>
+        <div class="container mt-4">
+            <h2>Listado de Canchas</h2>
+            <div class="row">
+                <% canchas.forEach(cancha => { %>
+                    <div class="col-md-4 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">  
+                                <h5 class="card-title"><%= cancha.nombre %></h5>
+                                <p class="card-text">
+                                    Tipo: <%= cancha.TipoCancha ? cancha.TipoCancha.nombre : 'General' %><br>
+                                    Precio: $<%= cancha.precio_por_hora %>
+                                </p>
+                                <div class="d-grid gap-2">
+                                    <a href="/client/cancha/<%= cancha.id %>/disponibilidad" class="btn btn-primary">Reservar ahora</a>
+                                    
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalVerResenas<%= cancha.id %>">
+                                        Ver Reseñas (<%= cancha.Resenas ? cancha.Resenas.length : 0 %>)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="modalVerResenas<%= cancha.id %>" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title">Reseñas de <%= cancha.nombre %></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <% if (cancha.Resenas && cancha.Resenas.length > 0) { %>
+                                        <% cancha.Resenas.forEach(resena => { %>
+                                            <div class="border-bottom mb-3 pb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong><%= resena.Usuario ? resena.Usuario.nombre : 'Anónimo' %></strong>
+                                                    <span class="text-warning">
+                                                        <%= '★'.repeat(resena.calificacion) %><%= '☆'.repeat(5 - resena.calificacion) %>
+                                                    </span>
+                                                </div>
+                                                <p class="mb-1 text-muted"><i>"<%= resena.comentario %>"</i></p>
+                                            </div>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p class="text-center text-muted">Aún no hay reseñas para esta cancha.</p>
+                                    <% } %>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
