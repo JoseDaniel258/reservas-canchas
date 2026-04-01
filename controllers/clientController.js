@@ -98,11 +98,9 @@ exports.reservarCancha = async (req, res) => {
             estado: 'confirmada'
         });
 
-        // 3. Marcamos el horario como NO disponible
         horario.disponible = false;
         await horario.save();
 
-        // 4. Redirigimos al Home o a una lista de mis reservas
         res.redirect('/client/Home'); 
 
     } catch (error) {
@@ -171,7 +169,7 @@ exports.cancelarReserva = async (req, res) => {
     }
 };
 
-
+/*
 exports.verResenasCancha = async (req, res) => {
     try {
         const { id } = req.params;
@@ -196,7 +194,7 @@ exports.verResenasCancha = async (req, res) => {
         res.status(500).send('Hubo un error al cargar las reseñas.');
     }
 };
-
+*/
 
 exports.reservasPasadas = async (req, res) => {
     try {

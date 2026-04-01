@@ -8,7 +8,7 @@ const adminController = require('../controllers/adminController');
 const clientController = require('../controllers/clientController');
 
 // ==========================================
-// ZONA DE CLIENTES (Requiere estar logueado)
+// ZONA DE CLIENTES
 // ==========================================
 router.get('/client/Home', estaAutenticado, clientController.Home);
 
@@ -18,8 +18,14 @@ router.post('/client/reservar/:horarioId', estaAutenticado, clientController.res
 router.get('/client/historial_reservas', estaAutenticado, clientController.historialReservas);
 router.post('/client/cancelar/:reservaId', estaAutenticado, clientController.cancelarReserva);
 router.get('/client/resenas', estaAutenticado, clientController.reservasPasadas);
-router.get('/client/cancha/:id/resenas', estaAutenticado, clientController.verResenasCancha);
+//router.get('/client/cancha/:id/resenas', estaAutenticado, clientController.verResenasCancha);
 router.post('/client/resena/crear', estaAutenticado, clientController.crearResena);
+
+
+
+
+
+//Primo Jose
 // ==========================================
 // ZONA DE ADMIN (Requiere ser Administrador)
 // ==========================================
