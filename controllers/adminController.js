@@ -117,8 +117,33 @@ exports.crearHorario = async (req, res) => {
     try {
         const { Horario } = require('../models');
         const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
+
+        // --- 1. VALIDACIÓN: Buscar si ya existe ---
+        const horarioExistente = await Horario.findOne({
+            where: {
+                cancha_id: cancha_id,
+                fecha: fecha,
+                hora_inicio: hora_inicio,
+                // Validamos que coincida el inicio (puedes agregar hora_fin si quieres ser más estricto)
+            }
+        });
+
+        // --- 2. SI EXISTE, DETENEMOS EL PROCESO ---
+        if (horarioExistente) {
+            return res.send(`
+                <div style="text-align: center; margin-top: 50px; font-family: Arial;">
+                    <h2 style="color: red;">⚠️ Error de duplicado</h2>
+                    <p>Ya abriste un horario a las <b>${hora_inicio}</b> para esta cancha en la fecha <b>${fecha}</b>.</p>
+                    <p>Por favor, revisa la tabla de horarios.</p>
+                    <a href="/admin/horarios" style="padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 5px;">Volver atrás</a>
+                </div>
+            `);
+        }
+
+        // --- 3. SI NO EXISTE, LO CREAMOS NORMALMENTE ---
         await Horario.create({ cancha_id, fecha, hora_inicio, hora_fin });
         res.redirect('/admin/horarios');
+        
     } catch (error) {
         console.error(error);
         res.send('Error al crear el horario.');
@@ -281,13 +306,37 @@ exports.mostrarEditarHorario = async (req, res) => {
 exports.actualizarHorario = async (req, res) => {
     try {
         const { Horario } = require('../models');
+        const { Op } = require('sequelize'); // Importamos los operadores especiales
         const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
         
+        // --- 1. VALIDACIÓN: Buscar duplicados (excluyendo el actual) ---
+        const horarioExistente = await Horario.findOne({
+            where: {
+                cancha_id: cancha_id,
+                fecha: fecha,
+                hora_inicio: hora_inicio,
+                id: { [Op.ne]: req.params.id } // Ignora el ID que estamos editando
+            }
+        });
+
+        // --- 2. SI EXISTE UN CHOQUE, FRENAMOS ---
+        if (horarioExistente) {
+            return res.send(`
+                <div style="text-align: center; margin-top: 50px; font-family: Arial;">
+                    <h2 style="color: red;">⚠️ Choque de horarios</h2>
+                    <p>Ya existe OTRO horario a las <b>${hora_inicio}</b> para esta cancha en la fecha <b>${fecha}</b>.</p>
+                    <a href="/admin/horarios" style="padding: 10px 20px; background: #333; color: white; text-decoration: none; border-radius: 5px;">Volver a Horarios</a>
+                </div>
+            `);
+        }
+
+        // --- 3. SI TODO ESTÁ BIEN, ACTUALIZAMOS ---
         await Horario.update(
             { cancha_id, fecha, hora_inicio, hora_fin }, 
             { where: { id: req.params.id } }
         );
         res.redirect('/admin/horarios');
+
     } catch (error) {
         console.error(error); 
         res.send('Error al actualizar el horario.');

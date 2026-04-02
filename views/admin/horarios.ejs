@@ -63,7 +63,7 @@
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
-                            </thead>
+                            </thead>    
                             <tbody>
                                 <% horarios.forEach(horario => { %>
                                     <tr>
@@ -72,9 +72,20 @@
                                         <td><%= horario.hora_inicio %></td>
                                         <td><%= horario.hora_fin %></td>
                                         <td>
-                                            <span class="badge <%= horario.disponible ? 'bg-success' : 'bg-warning text-dark' %>">
-                                                <%= horario.disponible ? 'Disponible' : 'Reservado' %>
-                                            </span>
+                                            <% 
+                                                // Magia JS: Calculamos si el horario ya quedó en el pasado
+                                                const fechaHorario = new Date(horario.fecha + 'T' + horario.hora_inicio);
+                                                const ahora = new Date();
+                                                const yaPaso = fechaHorario < ahora;
+                                            %>
+
+                                            <% if (!horario.disponible) { %>
+                                                <span class="badge bg-warning text-dark">Reservado</span>
+                                            <% } else if (yaPaso) { %>
+                                                <span class="badge bg-secondary">Expirado</span>
+                                            <% } else { %>
+                                                <span class="badge bg-success">Disponible</span>
+                                            <% } %>
                                         </td>
                                         <td>
                                             <a href="/admin/horarios/editar/<%= horario.id %>" class="btn btn-sm btn-outline-warning">Editar</a>
