@@ -1,20 +1,17 @@
 const bcrypt = require('bcryptjs');
 const { Usuario } = require('../models');
 
-// --- REGISTRO ---
 exports.mostrarRegistro = (req, res) => {
-    res.render('auth/registro'); // Mostraremos la vista EJS más adelante
+    res.render('auth/registro'); 
 };
 
 exports.registrar = async (req, res) => {
     try {
         const { nombre, email, contrasena } = req.body;
         
-        // Encriptar la contraseña por seguridad
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(contrasena, salt);
 
-        // Guardar en la base de datos (forzando rol cliente)
         await Usuario.create({
             nombre: nombre,
             email: email,
@@ -22,7 +19,6 @@ exports.registrar = async (req, res) => {
             rol: 'cliente' 
         });
 
-        // Si sale bien, lo mandamos a que inicie sesión
         res.redirect('/login');
     } catch (error) {
         console.error(error);
@@ -30,7 +26,6 @@ exports.registrar = async (req, res) => {
     }
 };
 
-// --- LOGIN ---
 exports.mostrarLogin = (req, res) => {
     res.render('auth/login');
 };
