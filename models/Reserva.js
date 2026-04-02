@@ -7,7 +7,6 @@ const Reserva = sequelize.define('Reserva', {
         primaryKey: true,
         autoIncrement: true
     },
-    // usuario_id y horario_id se crearán con las relaciones
     estado: {
         type: DataTypes.ENUM('confirmada', 'cancelada'),
         defaultValue: 'confirmada',

@@ -16,7 +16,7 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: false,
         unique: true
     },
-    contrasena: { // Usamos 'contrasena' sin la 'ñ' por buenas prácticas en código
+    contrasena: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -27,7 +27,7 @@ const Usuario = sequelize.define('Usuario', {
     }
 }, {
     tableName: 'usuarios',
-    timestamps: false // Lo mantenemos simple para no generar columnas extra de fecha
+    timestamps: false 
 });
 
 module.exports = Usuario;

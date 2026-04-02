@@ -2,15 +2,14 @@ const { Cancha, TipoCancha } = require('../models');
 
 exports.dashboard = async (req, res) => {
     try {
-        // Traemos todas las canchas incluyendo el nombre de su "Tipo"
         const canchas = await Cancha.findAll({
             include: [{ model: TipoCancha }]
         });
         
-        // Traemos todos los tipos de cancha para el formulario de crear nueva
+
         const tipos = await TipoCancha.findAll();
 
-        // Mandamos esos datos a la vista EJS (que crearemos en el siguiente paso)
+
         res.render('admin/dashboard', { 
             canchas: canchas, 
             tipos: tipos,
@@ -23,9 +22,9 @@ exports.dashboard = async (req, res) => {
     }
 };
 
-// --- CRUD: TIPOS DE CANCHA ---
 
-// Mostrar la vista con la tabla y el formulario
+
+
 exports.listarTipos = async (req, res) => {
     try {
         const tipos = await TipoCancha.findAll();
@@ -39,7 +38,7 @@ exports.listarTipos = async (req, res) => {
     }
 };
 
-// Recibir los datos del formulario y guardar en SQLite
+
 exports.crearTipo = async (req, res) => {
     try {
         const { nombre } = req.body;
@@ -53,7 +52,7 @@ exports.crearTipo = async (req, res) => {
     }
 };
 
-// ELIMINAR TIPO DE CANCHA
+
 exports.eliminarTipo = async (req, res) => {
     try {
         await TipoCancha.destroy({ where: { id: req.params.id } });
@@ -64,12 +63,12 @@ exports.eliminarTipo = async (req, res) => {
     }
 };
 
-// --- CRUD: CANCHAS ---
+
 exports.listarCanchas = async (req, res) => {
     try {
-        // Traemos las canchas con su tipo asociado
+
         const canchas = await Cancha.findAll({ include: [{ model: TipoCancha }] });
-        // Traemos los tipos para llenar el <select> del formulario
+
         const tipos = await TipoCancha.findAll(); 
         res.render('admin/canchas', { canchas, tipos, nombreAdmin: req.session.nombre });
     } catch (error) {
@@ -99,11 +98,11 @@ exports.eliminarCancha = async (req, res) => {
     }
 };
 
-// --- GESTIÓN DE HORARIOS ---
+
 exports.listarHorarios = async (req, res) => {
     try {
         const { Horario } = require('../models');
-        // Traemos horarios e incluimos la Cancha a la que pertenecen
+
         const horarios = await Horario.findAll({ include: [{ model: Cancha }] });
         const canchas = await Cancha.findAll(); 
         res.render('admin/horarios', { horarios, canchas, nombreAdmin: req.session.nombre });
@@ -117,18 +116,16 @@ exports.crearHorario = async (req, res) => {
     try {
         const { Horario } = require('../models');
         const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
-
-        // --- 1. VALIDACIÓN: Buscar si ya existe ---
         const horarioExistente = await Horario.findOne({
             where: {
                 cancha_id: cancha_id,
                 fecha: fecha,
                 hora_inicio: hora_inicio,
-                // Validamos que coincida el inicio (puedes agregar hora_fin si quieres ser más estricto)
+                
             }
         });
 
-        // --- 2. SI EXISTE, DETENEMOS EL PROCESO ---
+        
         if (horarioExistente) {
             return res.send(`
                 <div style="text-align: center; margin-top: 50px; font-family: Arial;">
@@ -140,7 +137,6 @@ exports.crearHorario = async (req, res) => {
             `);
         }
 
-        // --- 3. SI NO EXISTE, LO CREAMOS NORMALMENTE ---
         await Horario.create({ cancha_id, fecha, hora_inicio, hora_fin });
         res.redirect('/admin/horarios');
         
@@ -161,12 +157,10 @@ exports.eliminarHorario = async (req, res) => {
     }
 };
 
-// --- GESTIÓN DE RESERVAS ---
 exports.listarReservas = async (req, res) => {
     try {
         const { Reserva, Usuario, Horario, Cancha } = require('../models');
         
-        // Traemos todas las reservas con toda la información conectada
         const reservas = await Reserva.findAll({
             include: [
                 { model: Usuario },
@@ -175,7 +169,7 @@ exports.listarReservas = async (req, res) => {
                     include: [{ model: Cancha }] 
                 }
             ],
-            order: [['id', 'DESC']] // Las más nuevas arriba
+            order: [['id', 'DESC']] 
         });
         
         res.render('admin/reservas', { reservas, nombreAdmin: req.session.nombre });
@@ -190,14 +184,12 @@ exports.cambiarEstadoReserva = async (req, res) => {
         const { Reserva, Horario } = require('../models');
         const { estado } = req.body;
         
-        // 1. Buscamos la reserva que el admin quiere modificar
         const reserva = await Reserva.findByPk(req.params.id);
 
         if (reserva) {
             reserva.estado = estado;
             await reserva.save();
 
-            // 2. Lógica de negocio: Si se CANCELA, liberamos el horario para que otro lo compre
             const horario = await Horario.findByPk(reserva.horario_id);
             if (horario) {
                 if (estado === 'cancelada') {
@@ -215,7 +207,6 @@ exports.cambiarEstadoReserva = async (req, res) => {
     }
 };
 
-// --- GESTIÓN DE RESEÑAS ---
 exports.listarResenas = async (req, res) => {
     try {
         const { Resena, Usuario, Cancha } = require('../models');
@@ -241,7 +232,6 @@ exports.eliminarResena = async (req, res) => {
     }
 };
 
-// --- EDITAR TIPO DE CANCHA ---
 exports.mostrarEditarTipo = async (req, res) => {
     try {
         const { TipoCancha } = require('../models');
@@ -262,7 +252,6 @@ exports.actualizarTipo = async (req, res) => {
     }
 };
 
-// --- EDITAR CANCHA ---
 exports.mostrarEditarCancha = async (req, res) => {
     try {
         const { Cancha, TipoCancha } = require('../models');
@@ -285,7 +274,6 @@ exports.actualizarCancha = async (req, res) => {
     }
 };
 
-// --- EDITAR HORARIO ---
 exports.mostrarEditarHorario = async (req, res) => {
     try {
         const { Horario, Cancha } = require('../models');
@@ -306,20 +294,18 @@ exports.mostrarEditarHorario = async (req, res) => {
 exports.actualizarHorario = async (req, res) => {
     try {
         const { Horario } = require('../models');
-        const { Op } = require('sequelize'); // Importamos los operadores especiales
+        const { Op } = require('sequelize'); 
         const { cancha_id, fecha, hora_inicio, hora_fin } = req.body;
         
-        // --- 1. VALIDACIÓN: Buscar duplicados (excluyendo el actual) ---
         const horarioExistente = await Horario.findOne({
             where: {
                 cancha_id: cancha_id,
                 fecha: fecha,
                 hora_inicio: hora_inicio,
-                id: { [Op.ne]: req.params.id } // Ignora el ID que estamos editando
+                id: { [Op.ne]: req.params.id } 
             }
         });
 
-        // --- 2. SI EXISTE UN CHOQUE, FRENAMOS ---
         if (horarioExistente) {
             return res.send(`
                 <div style="text-align: center; margin-top: 50px; font-family: Arial;">
@@ -330,7 +316,6 @@ exports.actualizarHorario = async (req, res) => {
             `);
         }
 
-        // --- 3. SI TODO ESTÁ BIEN, ACTUALIZAMOS ---
         await Horario.update(
             { cancha_id, fecha, hora_inicio, hora_fin }, 
             { where: { id: req.params.id } }

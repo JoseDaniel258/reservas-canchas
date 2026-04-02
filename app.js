@@ -13,20 +13,18 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Configuración de Sesiones (Para mantener al usuario logueado)
 app.use(session({
-    secret: 'secreto_canchas_123', // En producción esto va en un archivo .env
-    resave: false,
+    secret: 'secreto_canchas_123', 
+     resave: false,
     saveUninitialized: false
 }));
 
-// Importar y usar las rutas de autenticación
 const authRoutes = require('./routes/authRoutes');
 app.use('/', authRoutes);
 
-// Ruta de inicio por defecto
+
 app.get('/', (req, res) => {
-  res.redirect('/login'); // Redirigimos directo al login
+  res.redirect('/login'); 
 });
 
 app.use('/', indexRoutes);

@@ -7,7 +7,6 @@ const Resena = sequelize.define('Resena', {
         primaryKey: true,
         autoIncrement: true
     },
-    // usuario_id y cancha_id se crearán con las relaciones
     calificacion: {
         type: DataTypes.INTEGER,
         allowNull: false,

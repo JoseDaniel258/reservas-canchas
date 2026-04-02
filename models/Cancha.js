@@ -11,9 +11,8 @@ const Cancha = sequelize.define('Cancha', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    // El tipo_id lo creará automáticamente Sequelize con las relaciones en el siguiente paso
     precio_por_hora: {
-        type: DataTypes.FLOAT, // Usamos FLOAT o DECIMAL para manejar precios
+        type: DataTypes.FLOAT, 
         allowNull: false
     },
     estado: {

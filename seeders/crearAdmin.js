@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { Usuario, sequelize } = require('../models'); // <-- Nota el ../ aquí
+const { Usuario, sequelize } = require('../models');
 
 async function inyectarAdministrador() {
     try {
@@ -13,12 +13,12 @@ async function inyectarAdministrador() {
             rol: 'admin'
         });
 
-        console.log('✅ Usuario Administrador creado con éxito.');
+        console.log('Usuario Administrador creado con éxito.');
         console.log('Email: admin@canchas.com');
         console.log('Contraseña: admin123');
         
     } catch (error) {
-        console.error('❌ Error al crear administrador:', error.message);
+        console.error('Error al crear administrador:', error.message);
     } finally {
         await sequelize.close();
     }

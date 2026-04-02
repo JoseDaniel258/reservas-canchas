@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database');
+const sequelize = require('../database'); 
 
 const Horario = sequelize.define('Horario', {
     id: {
@@ -7,13 +7,12 @@ const Horario = sequelize.define('Horario', {
         primaryKey: true,
         autoIncrement: true
     },
-    // cancha_id se creará con las relaciones
     fecha: {
-        type: DataTypes.DATEONLY, // Solo fecha (YYYY-MM-DD)
+        type: DataTypes.DATEONLY, 
         allowNull: false
     },
     hora_inicio: {
-        type: DataTypes.TIME, // Solo hora (HH:MM:SS)
+        type: DataTypes.TIME, 
         allowNull: false
     },
     hora_fin: {
@@ -31,3 +30,5 @@ const Horario = sequelize.define('Horario', {
 });
 
 module.exports = Horario;
+
+//mappeo objeto relacional 

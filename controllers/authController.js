@@ -39,24 +39,20 @@ exports.login = async (req, res) => {
     try {
         const { email, contrasena } = req.body;
 
-        // 1. Buscar si el usuario existe
         const usuario = await Usuario.findOne({ where: { email: email } });
         if (!usuario) {
             return res.send('Usuario no encontrado');
         }
 
-        // 2. Comparar la contraseña ingresada con la encriptada
         const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
         if (!contrasenaValida) {
             return res.send('Contraseña incorrecta');
         }
 
-        // 3. Guardar los datos en la sesión
         req.session.usuarioId = usuario.id;
         req.session.rol = usuario.rol;
         req.session.nombre = usuario.nombre;
 
-        // 4. Redirigir según el rol
         if (usuario.rol === 'admin') {
             res.redirect('/admin/dashboard');
         } else {
@@ -69,7 +65,6 @@ exports.login = async (req, res) => {
     }
 };
 
-// --- LOGOUT ---
 exports.logout = (req, res) => {
     req.session.destroy();
     res.redirect('/login');
