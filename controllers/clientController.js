@@ -1,5 +1,6 @@
 const { Cancha, TipoCancha } = require('../models');
 const { Usuario,Reserva,Resena,Horario } = require('../models');
+
 const { Op } = require('sequelize');
 
 exports.listado_cancha = async (req, res) => {
@@ -109,6 +110,37 @@ exports.reservarCancha = async (req, res) => {
     }
 };
 
+
+
+exports.cancelarReserva = async (req, res) => {
+    try {
+        const { reservaId } = req.params;
+
+        const reserva = await Reserva.findByPk(reservaId, {
+            include: [Horario]
+        });
+
+        if (!reserva) {
+            return res.status(404).send('Reserva no encontrada.');
+        }
+
+        reserva.estado = 'cancelada';
+        await reserva.save();
+
+         if (reserva.Horario) {
+            reserva.Horario.disponible = true;
+            await reserva.Horario.save();
+        }
+
+         res.redirect('/client/historial_reservas');
+
+    } catch (error) {
+        console.error('Error al cancelar:', error);
+        res.status(500).send('Error al procesar la cancelación.');
+    }
+};
+
+
 exports.historialReservas = async (req, res) => {
     try {
         const usuarioId = req.session.usuarioId;
@@ -140,70 +172,52 @@ exports.historialReservas = async (req, res) => {
     }
 };
 
-
-exports.cancelarReserva = async (req, res) => {
+exports.historialReservas = async (req, res) => {
     try {
-        const { reservaId } = req.params;
-
-        const reserva = await Reserva.findByPk(reservaId, {
-            include: [Horario]
-        });
-
-        if (!reserva) {
-            return res.status(404).send('Reserva no encontrada.');
-        }
-
-        reserva.estado = 'cancelada';
-        await reserva.save();
-
-         if (reserva.Horario) {
-            reserva.Horario.disponible = true;
-            await reserva.Horario.save();
-        }
-
-         res.redirect('/client/historial_reservas');
-
-    } catch (error) {
-        console.error('Error al cancelar:', error);
-        res.status(500).send('Error al procesar la cancelación.');
-    }
-};
-
-/*
-exports.verResenasCancha = async (req, res) => {
-    try {
-        const { id } = req.params;
+        const usuarioId = req.session.usuarioId;
         
-         const cancha = await Cancha.findByPk(id, {
+        const ahora = new Date();
+        const hoy = ahora.toLocaleDateString('en-CA', { timeZone: 'America/La_Paz' }); 
+        const horaActual = ahora.toLocaleTimeString('es-BO', { 
+            timeZone: 'America/La_Paz', 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+
+        const reservas = await Reserva.findAll({
+            where: { usuario_id: usuarioId },
             include: [{
-                model: Resena,
-                include: [Usuario] 
-            }]
+                model: Horario,
+                include: [Cancha]
+            }],
+            order: [[Horario, 'fecha', 'DESC'], [Horario, 'hora_inicio', 'DESC']]
         });
 
-        if (!cancha) {
-            return res.status(404).send('Cancha no encontrada');
-        }
-
-        res.render('client/ver_resenas', {
-            cancha: cancha,
-            nombreclient: req.session.nombre
+        res.render('client/historial_reservas', {
+            reservas: reservas,
+            nombreclient: req.session.nombre,
+            hoy, 
+            horaActual 
         });
+
     } catch (error) {
-        console.error('Error al cargar reseñas de la cancha:', error);
-        res.status(500).send('Hubo un error al cargar las reseñas.');
+        console.error('Error al cargar el historial', error);
+        res.status(500).send('Hubo un error al cargar el historial');
     }
 };
-*/
 
 exports.reservasPasadas = async (req, res) => {
     try {
         const usuarioId = req.session.usuarioId;
-        
-         const ahora = new Date();
-        const hoy = ahora.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-        const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + 
-                           ahora.getMinutes().toString().padStart(2, '0'); // Formato HH:MM
+        const ahora = new Date();
+        const hoy = ahora.toLocaleDateString('en-CA', { timeZone: 'America/La_Paz' });
+        const horaActual = ahora.toLocaleTimeString('es-BO', { 
+            timeZone: 'America/La_Paz', 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
 
         const reservas = await Reserva.findAll({
             where: { 

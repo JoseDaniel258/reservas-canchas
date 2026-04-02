@@ -1,45 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disponibilidad</title>
+    <title>Disponibilidad - <%= cancha.nombre %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
-<body>
+<body class="bg-light">
     <div class="d-flex">
-            <%- include('partials/sidebar_client') %>
+        <%- include('partials/sidebar_client') %>
+        
+        <div class="container py-5">
+            <div class="mb-4">
+                <h2 class="fw-bold text-dark">
+                    <i class="bi bi-calendar-check text-success me-2"></i>
+                    Reservar en: <span class="text-success"><%= cancha.nombre %></span>
+                </h2>
+                <p class="text-muted">Selecciona el horario que mejor te convenga.</p>
+            </div>
             
-            <div class="container mt-4">
-            <h2>Reservar en: <%= cancha.nombre %></h2>
-            
-            <form action="/client/cancha/<%= cancha.id %>/disponibilidad" method="GET" class="row g-3 mb-4">
-                <div class="col-auto">
-                    <label class="form-label">Selecciona un día:</label>
-                    <input type="date" name="fecha" class="form-control" value="<%= fechaSeleccionada %>" onchange="this.form.submit()">
-                </div>
-            </form>
+            <div class="mb-5">
+                <form action="/client/cancha/<%= cancha.id %>/disponibilidad" method="GET">
+                    <label class="form-label fw-semibold text-secondary">
+                        <i class="bi bi-calendar3 me-1"></i> Selecciona un día:
+                    </label>
+                    <div class="input-group shadow-sm" style="max-width: 400px;">
+                        <span class="input-group-text bg-white border-end-0 px-3">
+                            <i class="bi bi-calendar-event text-success" style="font-size: 1.2rem;"></i>
+                        </span>
+                        <input type="date" name="fecha" class="form-control border-start-0 ps-0 py-3" 
+                               value="<%= fechaSeleccionada %>" onchange="this.form.submit()" style="cursor: pointer;">
+                    </div>
+                </form>
+            </div>
+
+            <hr class="mb-5 opacity-25">
 
             <div class="row">
                 <% if(horarios.length > 0) { %>
                     <% horarios.forEach(horario => { %>
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-center shadow-sm">
-                                <div class="card-body">
-                                    <h6 class="card-title"><%= horario.hora_inicio %> - <%= horario.hora_fin %></h6>
-                                    <form action="/client/reservar/<%= horario.id %>" method="POST">
-                                        <button type="submit" class="btn btn-success btn-sm">Reservar este turno</button>
+                        <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                            <div class="card text-center shadow-sm h-100">
+                                <div class="card-body p-4">
+                                    <i class="bi bi-clock-history text-success fs-2 mb-3 d-block"></i>
+                                    <h5 class="card-title fw-bold">
+                                        <%= horario.hora_inicio %> - <%= horario.hora_fin %>
+                                    </h5>
+                                    <p class="text-muted small mb-4">Turno disponible</p>
+                                    
+                                    <form action="/client/reservar/<%= horario.id %>" method="POST" 
+                                          onsubmit="return confirm('¿Estás seguro de que deseas reservar el horario de <%= horario.hora_inicio %> a <%= horario.hora_fin %>?')">
+                                        <input type="hidden" name="fecha" value="<%= fechaSeleccionada %>">
+                                        <button type="submit" class="btn btn-success shadow-sm w-100">
+                                            Reservar ahora
+                                        </button>
                                     </form>
                                 </div>
                             </div>
                         </div>
                     <% }) %>
                 <% } else { %>
-                    <div class="alert alert-warning">No hay horarios disponibles para esta fecha. Intenta con otro día.</div>
+                    <div class="col-12">
+                        <div class="alert alert-warning border-0 shadow-sm">
+                            No hay horarios disponibles para esta fecha.
+                        </div>
+                    </div>
                 <% } %>
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
